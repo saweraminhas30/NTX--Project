@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTX Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+    --red: #C0392B;
+    --red-dark: #a93226;
+    --navy: #1a2a3a;
+    --dark: #0d1821;
+    --gold: #c8a96e;
+    --sidebar-bg: #0d1821;
+    --sidebar-width: 240px;
+    --topbar-h: 60px;
+    --white: #ffffff;
+    --surface: #f8f7f4;
+    --card: #ffffff;
+    --border: #e8e5e0;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #2563eb;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--surface); color: var(--text); }
+
+/* ---- LAYOUT ---- */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ---- SIDEBAR ---- */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 100;
+    transition: width 0.25s;
+}
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.logo-circle {
+    width: 36px; height: 36px;
+    background: var(--red);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem; font-weight: 900; color: white;
+    flex-shrink: 0;
+}
+.logo-text { line-height: 1.15; }
+.logo-text strong { color: white; font-size: 0.95rem; font-weight: 700; display: block; }
+.logo-text span { color: rgba(255,255,255,0.4); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.sidebar-section { padding: 20px 12px 8px; }
+.sidebar-section-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.3);
+    padding: 0 8px;
+    margin-bottom: 6px;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    user-select: none;
+}
+.nav-item i { width: 18px; text-align: center; font-size: 0.95rem; }
+.nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: var(--red); color: white; }
+.nav-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.nav-item.active .nav-badge { background: rgba(255,255,255,0.25); color: white; }
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 16px 12px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-footer .admin-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 7px;
+}
+.avatar {
+    width: 32px; height: 32px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: white;
+    flex-shrink: 0;
+}
+.admin-details strong { color: white; font-size: 0.85rem; display: block; }
+.admin-details span { color: rgba(255,255,255,0.4); font-size: 0.72rem; }
+
+/* ---- MAIN ---- */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ---- TOPBAR ---- */
+.topbar {
+    height: var(--topbar-h);
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    flex-shrink: 0;
+}
+.topbar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; flex: 1; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.btn-primary { background: var(--red); color: white; }
+.btn-primary:hover { background: var(--red-dark); }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: #eee; }
+.btn-danger { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fecaca; }
+.btn-success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+.btn-success:hover { background: #bbf7d0; }
+.btn-navy { background: var(--navy); color: white; }
+.btn-navy:hover { background: #243a50; }
+.btn-sm { padding: 5px 11px; font-size: 0.77rem; }
+.btn-icon { padding: 8px 10px; }
+.view-site-btn { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 0.82rem; text-decoration: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; transition: all 0.15s; }
+.view-site-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ---- CONTENT ---- */
+.content { flex: 1; overflow-y: auto; padding: 28px 28px 80px; }
+
+/* ---- PANELS (pages) ---- */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ---- CARDS ---- */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+.card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.card-title i { color: var(--red); font-size: 0.95rem; }
+
+/* ---- STAT CARDS ---- */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+.stat-card .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.stat-card .value { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.stat-card .sub { font-size: 0.75rem; color: var(--muted); }
+.stat-card .change { font-size: 0.72rem; font-weight: 600; margin-top: 6px; }
+.stat-card .change.up { color: var(--success); }
+.stat-card .change.down { color: var(--danger); }
+.stat-card.accent-red { border-left: 3px solid var(--red); }
+.stat-card.accent-navy { border-left: 3px solid var(--navy); }
+.stat-card.accent-gold { border-left: 3px solid var(--gold); }
+.stat-card.accent-green { border-left: 3px solid var(--success); }
+
+/* ---- TABLE ---- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--surface); font-weight: 600; }
+tbody td { padding: 12px 12px; border-bottom: 1px solid #f0ede8; font-size: 0.88rem; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #faf9f7; }
+
+/* ---- BADGES ---- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.badge-green { background: #f0fdf4; color: #15803d; }
+.badge-red { background: #fef2f2; color: #b91c1c; }
+.badge-blue { background: #eff6ff; color: #1d4ed8; }
+.badge-gold { background: #fffbeb; color: #b45309; }
+.badge-gray { background: #f5f5f5; color: #525252; }
+
+/* ---- FORMS ---- */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.form-group label { font-size: 0.77rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text); }
+.form-group input, .form-group textarea, .form-group select {
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--red); }
+.form-group textarea { min-height: 80px; resize: vertical; }
+.form-hint { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.form-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 8px; }
+
+/* ---- IMAGE GRID ---- */
+.img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+}
+.img-card {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface);
+    transition: border-color 0.2s;
+}
+.img-card:hover { border-color: var(--red); }
+.img-card .thumb {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    background: #e8e5e0;
+}
+.img-card .thumb-placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    background: #f0ede8;
+    color: #bbb;
+}
+.img-card .thumb-placeholder i { font-size: 1.8rem; }
+.img-card .thumb-placeholder span { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.img-card .img-info { padding: 8px 10px; }
+.img-card .img-name { font-size: 0.77rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.img-card .img-meta { font-size: 0.68rem; color: var(--muted); }
+.img-card .img-actions {
+    position: absolute;
+    top: 6px; right: 6px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.img-card:hover .img-actions { opacity: 1; }
+.img-card .img-actions button {
+    width: 28px; height: 28px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+}
+.img-actions .del-btn { background: #dc2626; color: white; }
+.img-actions .use-btn { background: var(--navy); color: white; }
+.img-card.logo-card { border-color: var(--gold); border-width: 2px; }
+.img-card.logo-card .badge { position: absolute; top: 6px; left: 6px; }
+
+/* ---- UPLOAD ZONE ---- */
+.upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    margin-bottom: 20px;
+}
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--red); background: #fdf5f4; }
+.upload-zone i { font-size: 2.2rem; color: var(--muted); margin-bottom: 12px; }
+.upload-zone h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+.upload-zone p { font-size: 0.82rem; color: var(--muted); }
+.upload-zone input { display: none; }
+
+/* ---- PROGRESS BAR ---- */
+.progress-bar { height: 4px; background: #e8e5e0; border-radius: 2px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.3s; }
+
+/* ---- PAGE EDITOR ---- */
+.section-toggle {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+.section-toggle-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    background: white;
+    transition: background 0.15s;
+    user-select: none;
+}
+.section-toggle-head:hover { background: #faf9f7; }
+.section-toggle-head .section-icon { color: var(--red); font-size: 1rem; width: 20px; text-align: center; }
+.section-toggle-head .section-name { font-weight: 700; font-size: 0.9rem; flex: 1; }
+.section-toggle-head .section-status { margin-left: auto; }
+.section-toggle-head .chevron { color: var(--muted); font-size: 0.8rem; transition: transform 0.2s; }
+.section-toggle-head.open .chevron { transform: rotate(180deg); }
+.section-toggle-body { display: none; padding: 16px 18px; border-top: 1px solid var(--border); background: #faf9f7; }
+.section-toggle-body.open { display: block; }
+
+/* ---- TABS ---- */
+.tabs { display: flex; gap: 4px; border-bottom: 1.5px solid var(--border); margin-bottom: 20px; }
+.tab-btn {
+    padding: 10px 18px;
+    border: none;
+    background: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1.5px;
+    transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ---- MODAL ---- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; }
+.modal-close { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--muted); padding: 4px; }
+.modal-close:hover { color: var(--danger); }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ---- TOAST ---- */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 260px;
+    animation: slideIn 0.25s ease;
+}
+.toast i { font-size: 1rem; }
+.toast.success i { color: var(--success); }
+.toast.error i { color: var(--danger); }
+.toast.info i { color: var(--info); }
+@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ---- QUOTE LEADS TABLE ---- */
+.lead-priority { display: flex; align-items: center; gap: 6px; }
+
+/* ---- LOGO SECTION ---- */
+.logo-preview-box {
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    background: var(--surface);
+    margin-bottom: 20px;
+}
+.logo-preview-box img { max-height: 80px; max-width: 100%; object-fit: contain; margin-bottom: 12px; }
+.logo-preview-box .logo-placeholder { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 12px; }
+.logo-preview-box .logo-placeholder .ntx { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 900; }
+.logo-preview-box .logo-placeholder .ntx .n { color: var(--red); }
+.logo-preview-box p { font-size: 0.8rem; color: var(--muted); }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 900px) {
+    .sidebar { position: fixed; left: -240px; top: 0; bottom: 0; transition: left 0.25s; z-index: 200; }
+    .sidebar.open { left: 0; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+}
+
+/* ---- QUOTE DETAIL ---- */
+.quote-detail-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    background: white;
+}
+.quote-detail-card .qd-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.quote-detail-card h4 { font-weight: 700; font-size: 0.95rem; }
+.quote-detail-card .qd-row { display: flex; font-size: 0.85rem; margin-bottom: 6px; gap: 8px; }
+.quote-detail-card .qd-label { color: var(--muted); min-width: 100px; font-weight: 600; }
+.attachments-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.attachment-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.77rem;
+    color: var(--info);
+    cursor: pointer;
+}
+.attachment-chip:hover { border-color: var(--info); }
+
+/* ---- CONFIRM DIALOG ---- */
+.confirm-dialog {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.confirm-dialog.open { opacity: 1; pointer-events: all; }
+.confirm-box {
+    background: white;
+    border-radius: 10px;
+    padding: 28px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+}
+.confirm-box i { font-size: 2.5rem; color: var(--danger); margin-bottom: 14px; }
+.confirm-box h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.confirm-box p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
+.confirm-box .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+
+/* ---- CONTACT INFO EDITOR ---- */
+.contact-field-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; margin-bottom: 10px; }
+.contact-field-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-dialog" id="confirmDialog">
+    <div class="confirm-box">
+        <i class="fas fa-triangle-exclamation"></i>
+        <h4 id="confirmTitle">Delete Item?</h4>
+        <p id="confirmMsg">This action cannot be undone.</p>
+        <div class="confirm-btns">
+            <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+            <button class="btn btn-danger" id="confirmOk">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="mainModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Modal</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-circle">N</div>
+            <div class="logo-text">
+                <strong>NTX Admin</strong>
+                <span>Control Panel</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Dashboard</div>
+            <div class="nav-item active" onclick="switchPanel('dashboard', this)">
+                <i class="fas fa-gauge-high"></i> Overview
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Content</div>
+            <div class="nav-item" onclick="switchPanel('pages', this)">
+                <i class="fas fa-file-lines"></i> Pages
+            </div>
+            <div class="nav-item" onclick="switchPanel('services', this)">
+                <i class="fas fa-hard-hat"></i> Services
+            </div>
+            <div class="nav-item" onclick="switchPanel('reviews', this)">
+                <i class="fas fa-star"></i> Reviews
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Media</div>
+            <div class="nav-item" onclick="switchPanel('images', this)">
+                <i class="fas fa-images"></i> Image Library
+                <span class="nav-badge" id="imgBadge">9</span>
+            </div>
+            <div class="nav-item" onclick="switchPanel('logo', this)">
+                <i class="fas fa-trademark"></i> Logo Manager
+            </div>
+            <div class="nav-item" onclick="switchPanel('portfolio', this)">
+                <i class="fas fa-folder-open"></i> Portfolio
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Leads</div>
+            <div class="nav-item" onclick="switchPanel('leads', this)">
+                <i class="fas fa-inbox"></i> Quote Requests
+                <span class="nav-badge" id="leadBadge">6</span>
+            </div>
+            <div class="nav-item" onclick="switchPanel('contacts', this)">
+                <i class="fas fa-address-book"></i> Contact Info
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Settings</div>
+            <div class="nav-item" onclick="switchPanel('settings', this)">
+                <i class="fas fa-gear"></i> General Settings
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <div class="avatar">A</div>
+                <div class="admin-details">
+                    <strong>Ahmed Ahsanullah</strong>
+                    <span>Administrator</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <button class="btn btn-secondary btn-icon" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <div class="topbar-title" id="topbarTitle">Dashboard Overview</div>
+            <div class="topbar-actions">
+                <a href="index.html" target="_blank" class="view-site-btn"><i class="fas fa-external-link-alt"></i> View Website</a>
+                <button class="btn btn-primary btn-sm" onclick="handlePublish()"><i class="fas fa-upload"></i> Publish Changes</button>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content">
+
+            <!-- ========== DASHBOARD ========== -->
+            <div class="panel active" id="panel-dashboard">
+                <div class="stats-row">
+                    <div class="stat-card accent-red">
+                        <div class="label">Quote Requests</div>
+                        <div class="value">6</div>
+                        <div class="sub">Total received</div>
+                        <div class="change up"><i class="fas fa-arrow-up"></i> 3 new this week</div>
+                    </div>
+                    <div class="stat-card accent-navy">
+                        <div class="label">Images Uploaded</div>
+                        <div class="value" id="dashImgCount">9</div>
+                        <div class="sub">In media library</div>
+                        <div class="change up"><i class="fas fa-arrow-up"></i> +2 this month</div>
+                    </div>
+                    <div class="stat-card accent-gold">
+                        <div class="label">Active Services</div>
+                        <div class="value">16</div>
+                        <div class="sub">Listed on site</div>
+                    </div>
+                    <div class="stat-card accent-green">
+                        <div class="label">Reviews Shown</div>
+                        <div class="value">6</div>
+                        <div class="sub">On website</div>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-inbox"></i> Recent Quote Requests</div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>James Walker</strong><br><small style="color:var(--muted);">james@email.com</small></td>
+                                        <td>Foundation Repair</td>
+                                        <td><span class="badge badge-gold">New</span></td>
+                                        <td style="color:var(--muted);font-size:0.8rem;">Today</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Maria Lopez</strong><br><small style="color:var(--muted);">maria@biz.com</small></td>
+                                        <td>Commercial Build-Out</td>
+                                        <td><span class="badge badge-gold">New</span></td>
+                                        <td style="color:var(--muted);font-size:0.8rem;">Yesterday</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Tom Richards</strong><br><small style="color:var(--muted);">tom@home.com</small></td>
+                                        <td>Kitchen Remodel</td>
+                                        <td><span class="badge badge-blue">In Review</span></td>
+                                        <td style="color:var(--muted);font-size:0.8rem;">May 10</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Susan Park</strong><br><small style="color:var(--muted);">susan@co.com</small></td>
+                                        <td>HVAC</td>
+                                        <td><span class="badge badge-green">Replied</span></td>
+                                        <td style="color:var(--muted);font-size:0.8rem;">May 8</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="text-align:right;margin-top:12px;"><button class="btn btn-secondary btn-sm" onclick="switchPanel('leads', document.querySelector('.nav-item:nth-child(1)'))">View All Leads →</button></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <button class="btn btn-primary" onclick="switchPanel('images', null); setTimeout(()=>document.getElementById('uploadTrigger').click(),200)"><i class="fas fa-cloud-upload-alt"></i> Upload New Images</button>
+                            <button class="btn btn-navy" onclick="switchPanel('logo', null)"><i class="fas fa-trademark"></i> Update Logo</button>
+                            <button class="btn btn-secondary" onclick="switchPanel('leads', null)"><i class="fas fa-inbox"></i> View Quote Leads</button>
+                            <button class="btn btn-secondary" onclick="switchPanel('reviews', null)"><i class="fas fa-star"></i> Manage Reviews</button>
+                            <button class="btn btn-secondary" onclick="switchPanel('pages', null)"><i class="fas fa-edit"></i> Edit Page Content</button>
+                            <a href="index.html" target="_blank" class="btn btn-success"><i class="fas fa-external-link-alt"></i> Preview Live Site</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:0;">
+                    <div class="card-title"><i class="fas fa-clock"></i> Recent Activity</div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;"><div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;"></div><span style="color:var(--muted);min-width:90px;">Just now</span> New quote request from <strong>James Walker</strong> — Foundation Repair</div>
+                        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;"><div style="width:8px;height:8px;border-radius:50%;background:var(--info);flex-shrink:0;"></div><span style="color:var(--muted);min-width:90px;">2h ago</span> Logo updated successfully</div>
+                        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;"><div style="width:8px;height:8px;border-radius:50%;background:var(--warning);flex-shrink:0;"></div><span style="color:var(--muted);min-width:90px;">Yesterday</span> 3 new images added to Portfolio gallery</div>
+                        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;"><div style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;"></div><span style="color:var(--muted);min-width:90px;">May 10</span> Services page content updated</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== PAGES ========== -->
+            <div class="panel" id="panel-pages">
+                <p style="color:var(--muted);font-size:0.88rem;margin-bottom:20px;">Edit the text content of each page section. Changes are saved and applied when you publish.</p>
+
+                <!-- HOME -->
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-home"></i> Home Page</div>
+                    <div class="section-toggle">
+                        <div class="section-toggle-head" onclick="toggleSection(this)">
+                            <i class="fas fa-star section-icon"></i>
+                            <span class="section-name">Hero Section</span>
+                            <span class="section-status"><span class="badge badge-green">Visible</span></span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-toggle-body">
+                            <div class="form-group"><label>Headline</label><input type="text" value="Where Vision Comes To Life."></div>
+                            <div class="form-group"><label>Subheadline</label><textarea>NTX Construction Group delivers precision craftsmanship on every residential and commercial project — from small repairs to large-scale builds across the Dallas–Fort Worth metroplex.</textarea></div>
+                            <div class="form-group"><label>DFW Area Tag</label><input type="text" value="General Contractor Serving DFW — Dallas · Fort Worth · Irving · Plano · Frisco"></div>
+                            <div class="form-footer"><button class="btn btn-secondary btn-sm" onclick="showToast('Changes saved!','success')">Save Section</button></div>
+                        </div>
+                    </div>
+                    <div class="section-toggle">
+                        <div class="section-toggle-head" onclick="toggleSection(this)">
+                            <i class="fas fa-trophy section-icon"></i>
+                            <span class="section-name">Why Choose Us Section</span>
+                            <span class="section-status"><span class="badge badge-green">Visible</span></span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-toggle-body">
+                            <div class="form-row">
+                                <div class="form-group"><label>Headline</label><input type="text" value="Built on Trust. Delivered on Time."></div>
+                                <div class="form-group"><label>Subtext</label><input type="text" value="We don't just build — we deliver results."></div>
+                            </div>
+                            <div class="form-group"><label>Stat 1</label><input type="text" value="500+ Projects Completed"></div>
+                            <div class="form-group"><label>Stat 2</label><input type="text" value="10+ Years Experience"></div>
+                            <div class="form-footer"><button class="btn btn-secondary btn-sm" onclick="showToast('Changes saved!','success')">Save Section</button></div>
+                        </div>
+                    </div>
+                    <div class="section-toggle">
+                        <div class="section-toggle-head" onclick="toggleSection(this)">
+                            <i class="fas fa-quote-left section-icon"></i>
+                            <span class="section-name">CTA Band ("We Deliver Results")</span>
+                            <span class="section-status"><span class="badge badge-green">Visible</span></span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-toggle-body">
+                            <div class="form-group"><label>Headline</label><input type="text" value="We Don't Just Build — We Deliver Results."></div>
+                            <div class="form-group"><label>Subtext</label><input type="text" value="From small repairs to large-scale construction projects, NTX is your trusted partner."></div>
+                            <div class="form-footer"><button class="btn btn-secondary btn-sm" onclick="showToast('Changes saved!','success')">Save Section</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABOUT -->
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-building"></i> About Us Page</div>
+                    <div class="section-toggle">
+                        <div class="section-toggle-head" onclick="toggleSection(this)">
+                            <i class="fas fa-info-circle section-icon"></i>
+                            <span class="section-name">Company Description</span>
+                            <span class="section-status"><span class="badge badge-green">Visible</span></span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-toggle-body">
+                            <div class="form-group"><label>Paragraph 1</label><textarea>NTX Construction Group is a dedicated general contracting company that focuses on high-quality construction. We work on both residential and commercial projects across the Dallas–Fort Worth metroplex.</textarea></div>
+                            <div class="form-group"><label>Paragraph 2</label><textarea>At NTX, our mission is to prioritize client satisfaction, leveraging innovative solutions and quality materials to bring your vision to life.</textarea></div>
+                            <div class="form-group"><label>Mission Quote Box</label><textarea>"Every home and business deserves care and attention. NTX is here to help you tackle everyday tasks and repairs, ensuring your space is safe, functional, and welcoming."</textarea></div>
+                            <div class="form-footer"><button class="btn btn-secondary btn-sm" onclick="showToast('Changes saved!','success')">Save Section</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTACT INFO -->
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-phone"></i> Contact Details (shown site-wide)</div>
+                    <div class="contact-field-row"><span class="contact-field-label">Office Phone</span><input type="text" class="form-group" value="(214) 892-7751" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="contact-field-row"><span class="contact-field-label">Mobile</span><input type="text" value="(214) 606-3270" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="contact-field-row"><span class="contact-field-label">Email</span><input type="email" value="info@ntxcgroup.com" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="contact-field-row"><span class="contact-field-label">Website</span><input type="url" value="www.ntxcgroup.com" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="contact-field-row"><span class="contact-field-label">Contact Person</span><input type="text" value="Ahmed Ahsanullah" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="contact-field-row"><span class="contact-field-label">Service Area</span><input type="text" value="Dallas · Fort Worth · Plano · Frisco · Irving · Arlington" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.88rem;font-family:Barlow,sans-serif;"></div>
+                    <div class="form-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Contact info saved!','success')">Save Contact Info</button></div>
+                </div>
+            </div>
+
+            <!-- ========== SERVICES ========== -->
+            <div class="panel" id="panel-services">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <p style="color:var(--muted);font-size:0.88rem;">Add, edit, or hide services shown on the website.</p>
+                    <button class="btn btn-primary btn-sm" onclick="openAddServiceModal()"><i class="fas fa-plus"></i> Add Service</button>
+                </div>
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('svc-commercial', this)">Commercial</button>
+                        <button class="tab-btn" onclick="switchTab('svc-residential', this)">Residential</button>
+                        <button class="tab-btn" onclick="switchTab('svc-other', this)">Other Services</button>
+                    </div>
+                    <div class="tab-panel active" id="tab-svc-commercial">
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Service Name</th><th>Description</th><th>Visible</th><th>Actions</th></tr></thead>
+                                <tbody id="svcCommercialBody">
+                                    <tr><td><strong>Commercial Build-Outs</strong></td><td style="color:var(--muted);font-size:0.82rem;">Office, retail, and industrial build-outs</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm" onclick="editService(this)"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Structural & Concrete</strong></td><td style="color:var(--muted);font-size:0.82rem;">Foundation, slabs, retaining walls</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm" onclick="editService(this)"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Tenant Finish</strong></td><td style="color:var(--muted);font-size:0.82rem;">Interior finish work for commercial spaces</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm" onclick="editService(this)"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Access Control & Security</strong></td><td style="color:var(--muted);font-size:0.82rem;">Security systems and access control</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm" onclick="editService(this)"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-svc-residential">
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Service Name</th><th>Description</th><th>Visible</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>Renovation & Remodeling</strong></td><td style="color:var(--muted);font-size:0.82rem;">Kitchen, bathroom, full home</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Foundation Repair</strong></td><td style="color:var(--muted);font-size:0.82rem;">Diagnosis and repair services</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Exterior Improvements</strong></td><td style="color:var(--muted);font-size:0.82rem;">Landscaping, fencing, patio</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Roofing</strong></td><td style="color:var(--muted);font-size:0.82rem;">Repair and replacement</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-svc-other">
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Service Name</th><th>Category</th><th>Visible</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td><strong>HVAC</strong></td><td>Residential & Commercial</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Solar Power</strong></td><td>Residential</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Handyman Services</strong></td><td>Residential</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Monthly / Quarterly Maintenance</strong></td><td>Commercial & Residential</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                    <tr><td><strong>Insurance Claim Assistance</strong></td><td>Residential</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== REVIEWS ========== -->
+            <div class="panel" id="panel-reviews">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <p style="color:var(--muted);font-size:0.88rem;">Manage client reviews displayed on the website.</p>
+                    <button class="btn btn-primary btn-sm" onclick="openAddReviewModal()"><i class="fas fa-plus"></i> Add Review</button>
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Reviewer</th><th>Rating</th><th>Review Text</th><th>Type</th><th>Visible</th><th>Actions</th></tr></thead>
+                            <tbody id="reviewsBody">
+                                <tr><td><strong>Sarah Jenkins</strong><br><small style="color:var(--muted);">CEO, TechCenter</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">Professional, timely, and quality exceeded expectations...</td><td><span class="badge badge-blue">Commercial</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                <tr><td><strong>Michael Ross</strong><br><small style="color:var(--muted);">Homeowner, Plano</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">They handled our renovation with such care...</td><td><span class="badge badge-gold">Residential</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                <tr><td><strong>David Hernandez</strong><br><small style="color:var(--muted);">Property Mgr, Dallas</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">Ahmed and his team are true professionals...</td><td><span class="badge badge-blue">Commercial</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                <tr><td><strong>Jennifer Martinez</strong><br><small style="color:var(--muted);">Business Owner</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">Tenant finish-out completed on budget and ahead...</td><td><span class="badge badge-blue">Commercial</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                <tr><td><strong>Robert Kim</strong><br><small style="color:var(--muted);">Homeowner, Frisco</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">Kitchen and bathroom remodel came out exactly as we envisioned...</td><td><span class="badge badge-gold">Residential</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                                <tr><td><strong>Lisa Thompson</strong><br><small style="color:var(--muted);">HOA Mgr, Irving</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">NTX handles our community maintenance and they're fantastic...</td><td><span class="badge badge-blue">Commercial</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== IMAGE LIBRARY ========== -->
+            <div class="panel" id="panel-images">
+                <label class="upload-zone" for="uploadTrigger" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h4>Drop images here or click to upload</h4>
+                    <p>JPG, PNG, WEBP, GIF — Max 10MB each · Multiple files supported</p>
+                    <input type="file" id="uploadTrigger" multiple accept="image/*" onchange="handleImageUpload(this)">
+                </label>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                    <div style="font-size:0.82rem;color:var(--muted);"><span id="imgCountLabel">9 images</span> in library</div>
+                    <div style="display:flex;gap:8px;">
+                        <select style="padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;font-family:Barlow,sans-serif;" onchange="filterImages(this.value)">
+                            <option value="all">All Images</option>
+                            <option value="portfolio">Portfolio</option>
+                            <option value="services">Services</option>
+                            <option value="hero">Hero</option>
+                            <option value="team">Team</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="img-grid" id="imageGrid">
+                    <!-- Seeded sample images -->
+                </div>
+            </div>
+
+            <!-- ========== LOGO MANAGER ========== -->
+            <div class="panel" id="panel-logo">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                    <div>
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-eye"></i> Current Logo Preview</div>
+                            <div class="logo-preview-box">
+                                <div class="logo-placeholder">
+                                    <div class="ntx"><span class="n">N</span><span style="color:var(--navy);">TX</span></div>
+                                    <div>
+                                        <div style="font-size:0.9rem;font-weight:700;color:var(--navy);">CONSTRUCTION GROUP</div>
+                                        <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">Where Vision Comes To Life</div>
+                                    </div>
+                                </div>
+                                <p id="logoStatus">Using default NTX text logo</p>
+                            </div>
+                            <div id="logoImgPreview" style="display:none;">
+                                <img id="uploadedLogoImg" src="" alt="Logo" style="max-height:80px;max-width:100%;object-fit:contain;display:block;margin:0 auto 12px;">
+                                <div style="display:flex;gap:8px;justify-content:center;">
+                                    <button class="btn btn-success btn-sm" onclick="applyLogo()"><i class="fas fa-check"></i> Apply Logo</button>
+                                    <button class="btn btn-danger btn-sm" onclick="removeLogo()"><i class="fas fa-trash"></i> Remove</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-upload"></i> Upload New Logo</div>
+                            <label class="upload-zone" for="logoUpload" style="padding:24px;">
+                                <i class="fas fa-trademark"></i>
+                                <h4>Upload Logo File</h4>
+                                <p>PNG (transparent), SVG, or JPG<br>Recommended: min 400px wide</p>
+                                <input type="file" id="logoUpload" accept="image/*,.svg" onchange="previewLogo(this)">
+                            </label>
+                            <p style="font-size:0.78rem;color:var(--muted);">For best results use a <strong>PNG with transparent background</strong>. Logo appears in the navbar, footer, and browser tab.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-palette"></i> Logo Text Settings</div>
+                            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">If using the default text logo, customize its appearance below.</p>
+                            <div class="form-group"><label>Company Name (NTX part)</label><input type="text" value="NTX"></div>
+                            <div class="form-group"><label>Subtitle Line 1</label><input type="text" value="CONSTRUCTION GROUP"></div>
+                            <div class="form-group"><label>Tagline</label><input type="text" value="Where Vision Comes To Life"></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Accent Color (N)</label><input type="color" value="#C0392B" style="height:38px;padding:4px;cursor:pointer;"></div>
+                                <div class="form-group"><label>Main Color (TX)</label><input type="color" value="#1a2a3a" style="height:38px;padding:4px;cursor:pointer;"></div>
+                            </div>
+                            <div class="form-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Logo settings saved!','success')"><i class="fas fa-save"></i> Save Settings</button></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Logo History</div>
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid var(--border);border-radius:6px;">
+                                    <div><div style="font-size:0.85rem;font-weight:700;">Default Text Logo</div><div style="font-size:0.72rem;color:var(--muted);">Current · NTX Construction Group</div></div>
+                                    <span class="badge badge-green">Active</span>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid var(--border);border-radius:6px;opacity:0.5;">
+                                    <div><div style="font-size:0.85rem;font-weight:700;">ntx-logo-v1.png</div><div style="font-size:0.72rem;color:var(--muted);">Uploaded May 1, 2026</div></div>
+                                    <button class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i> Restore</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== PORTFOLIO ========== -->
+            <div class="panel" id="panel-portfolio">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <p style="color:var(--muted);font-size:0.88rem;">Manage project images shown in the Portfolio / Projects page gallery.</p>
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('portfolioUpload').click()"><i class="fas fa-plus"></i> Add Portfolio Images</button>
+                    <input type="file" id="portfolioUpload" multiple accept="image/*" style="display:none" onchange="handlePortfolioUpload(this)">
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-folder-open"></i> Portfolio Gallery</div>
+                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">Each image can be assigned a category and title that appear on the website gallery.</p>
+                    <div class="img-grid" id="portfolioGrid">
+                        <!-- Portfolio items seeded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== LEADS ========== -->
+            <div class="panel" id="panel-leads">
+                <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+                    <div class="stat-card accent-gold"><div class="label">New</div><div class="value">2</div><div class="sub">Awaiting response</div></div>
+                    <div class="stat-card accent-blue" style="border-left:3px solid var(--info);"><div class="label">In Review</div><div class="value">2</div><div class="sub">Being processed</div></div>
+                    <div class="stat-card accent-green"><div class="label">Replied</div><div class="value">1</div><div class="sub">Response sent</div></div>
+                    <div class="stat-card accent-red"><div class="label">Total</div><div class="value">6</div><div class="sub">All time</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-inbox"></i> All Quote Requests</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Name</th><th>Contact</th><th>Service Type</th><th>Location</th><th>Attachments</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>James Walker</strong></td>
+                                    <td style="font-size:0.8rem;">james@email.com<br>(214) 555-0198</td>
+                                    <td>Foundation Repair</td>
+                                    <td>Dallas, TX</td>
+                                    <td><span class="badge badge-blue"><i class="fas fa-paperclip"></i> 3 photos</span></td>
+                                    <td><span class="badge badge-gold">New</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">Today</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('James Walker','Foundation Repair','james@email.com','(214) 555-0198','Dallas, TX','We have cracks in our foundation after the recent rain. Need an assessment and repair quote ASAP.','3')">View</button>
+                                        <button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Maria Lopez</strong></td>
+                                    <td style="font-size:0.8rem;">maria@biz.com<br>(972) 555-0142</td>
+                                    <td>Commercial Build-Out</td>
+                                    <td>Fort Worth, TX</td>
+                                    <td><span class="badge badge-blue"><i class="fas fa-paperclip"></i> 5 photos</span></td>
+                                    <td><span class="badge badge-gold">New</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">Yesterday</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('Maria Lopez','Commercial Build-Out','maria@biz.com','(972) 555-0142','Fort Worth, TX','Opening a new restaurant location. Need full commercial build-out — approx 4,000 sq ft. Timeline is 3 months.','5')">View</button>
+                                        <button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tom Richards</strong></td>
+                                    <td style="font-size:0.8rem;">tom@home.com<br>(469) 555-0177</td>
+                                    <td>Kitchen Remodel</td>
+                                    <td>Plano, TX</td>
+                                    <td><span class="badge badge-gray">No files</span></td>
+                                    <td><span class="badge badge-blue">In Review</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">May 10</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('Tom Richards','Kitchen Remodel','tom@home.com','(469) 555-0177','Plano, TX','Full kitchen remodel — new cabinets, countertops, island. Budget around $40k.','0')">View</button>
+                                        <button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Susan Park</strong></td>
+                                    <td style="font-size:0.8rem;">susan@co.com<br>(817) 555-0133</td>
+                                    <td>HVAC</td>
+                                    <td>Arlington, TX</td>
+                                    <td><span class="badge badge-blue"><i class="fas fa-paperclip"></i> 1 photo</span></td>
+                                    <td><span class="badge badge-green">Replied</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">May 8</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('Susan Park','HVAC','susan@co.com','(817) 555-0133','Arlington, TX','HVAC unit needs replacement. It is a commercial unit for a 2500 sq ft office space.','1')">View</button>
+                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carlos Reyes</strong></td>
+                                    <td style="font-size:0.8rem;">carlos@email.com<br>(214) 555-0144</td>
+                                    <td>Fence Installation</td>
+                                    <td>Irving, TX</td>
+                                    <td><span class="badge badge-blue"><i class="fas fa-paperclip"></i> 2 photos</span></td>
+                                    <td><span class="badge badge-blue">In Review</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">May 7</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('Carlos Reyes','Fence Installation','carlos@email.com','(214) 555-0144','Irving, TX','Need a cedar wood fence around my backyard, approximately 200 linear feet.','2')">View</button>
+                                        <button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amy Chen</strong></td>
+                                    <td style="font-size:0.8rem;">amy@firm.com<br>(972) 555-0188</td>
+                                    <td>Maintenance Plan</td>
+                                    <td>Frisco, TX</td>
+                                    <td><span class="badge badge-gray">No files</span></td>
+                                    <td><span class="badge badge-green">Replied</span></td>
+                                    <td style="font-size:0.8rem;color:var(--muted);">May 5</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="viewLead('Amy Chen','Maintenance Plan','amy@firm.com','(972) 555-0188','Frisco, TX','We manage 12 residential properties and are interested in a quarterly maintenance plan.','0')">View</button>
+                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== CONTACTS ========== -->
+            <div class="panel" id="panel-contacts">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-address-card"></i> Business Contact Information</div>
+                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">This information appears in the website header, footer, contact page, and quote form.</p>
+                    <div class="form-row">
+                        <div class="form-group"><label>Office Phone</label><input type="tel" value="(214) 892-7751"></div>
+                        <div class="form-group"><label>Mobile / Secondary</label><input type="tel" value="(214) 606-3270"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Email Address</label><input type="email" value="info@ntxcgroup.com"></div>
+                        <div class="form-group"><label>Website URL</label><input type="url" value="www.ntxcgroup.com"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Contact Person</label><input type="text" value="Ahmed Ahsanullah"></div>
+                        <div class="form-group"><label>Service Area</label><input type="text" value="Dallas · Fort Worth · Plano · Frisco · Irving · Arlington"></div>
+                    </div>
+                    <div class="form-group"><label>Address / Location Description</label><input type="text" value="Dallas – Fort Worth, TX"></div>
+                    <div class="card-title" style="margin-top:20px;"><i class="fab fa-facebook"></i> Social Media Links</div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Facebook URL</label><input type="url" placeholder="https://facebook.com/ntxcgroup"></div>
+                        <div class="form-group"><label>Instagram URL</label><input type="url" placeholder="https://instagram.com/ntxcgroup"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>LinkedIn URL</label><input type="url" placeholder="https://linkedin.com/company/ntxcgroup"></div>
+                        <div class="form-group"><label>Google Business URL</label><input type="url" placeholder="https://g.page/ntxcgroup"></div>
+                    </div>
+                    <div class="form-footer"><button class="btn btn-primary" onclick="showToast('Contact information saved!','success')"><i class="fas fa-save"></i> Save All Changes</button></div>
+                </div>
+            </div>
+
+            <!-- ========== SETTINGS ========== -->
+            <div class="panel" id="panel-settings">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-globe"></i> Site Settings</div>
+                        <div class="form-group"><label>Site Title</label><input type="text" value="NTX Construction Group"></div>
+                        <div class="form-group"><label>Tagline</label><input type="text" value="Where Vision Comes To Life | Dallas - Fort Worth"></div>
+                        <div class="form-group"><label>Meta Description</label><textarea>Licensed general contractor serving Dallas–Fort Worth. Commercial and residential construction, renovation, foundation repair, HVAC, and more. Free estimates.</textarea></div>
+                        <div class="form-group"><label>Google Analytics ID</label><input type="text" placeholder="G-XXXXXXXXXX"></div>
+                        <div class="form-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Site settings saved!','success')">Save Settings</button></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-bell"></i> Notification Settings</div>
+                        <div class="form-group"><label>Quote Request Notifications → Email</label><input type="email" value="info@ntxcgroup.com" placeholder="Email to receive lead notifications"></div>
+                        <div class="form-group"><label>Quote Request Notifications → SMS</label><input type="tel" value="(214) 606-3270" placeholder="Phone for SMS alerts"></div>
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                            <label style="display:flex;align-items:center;gap:10px;font-size:0.88rem;cursor:pointer;"><input type="checkbox" checked> Email me on new quote request</label>
+                            <label style="display:flex;align-items:center;gap:10px;font-size:0.88rem;cursor:pointer;"><input type="checkbox"> SMS me on new quote request</label>
+                            <label style="display:flex;align-items:center;gap:10px;font-size:0.88rem;cursor:pointer;"><input type="checkbox" checked> Daily summary email</label>
+                        </div>
+                        <div class="form-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Notification settings saved!','success')">Save Settings</button></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-lock"></i> Admin Login</div>
+                        <div class="form-group"><label>Current Password</label><input type="password" placeholder="Enter current password"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" placeholder="New password"></div>
+                        <div class="form-group"><label>Confirm New Password</label><input type="password" placeholder="Confirm new password"></div>
+                        <div class="form-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Password updated!','success')">Update Password</button></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-database"></i> Data & Backup</div>
+                        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Export your leads data and site content backups.</p>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <button class="btn btn-secondary" onclick="showToast('Leads exported as CSV!','success')"><i class="fas fa-file-csv"></i> Export Quote Leads (CSV)</button>
+                            <button class="btn btn-secondary" onclick="showToast('Content backup downloaded!','success')"><i class="fas fa-download"></i> Download Content Backup</button>
+                            <button class="btn btn-navy" onclick="showToast('Cache cleared!','info')"><i class="fas fa-broom"></i> Clear Site Cache</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+const panels = ['dashboard','pages','services','reviews','images','logo','portfolio','leads','contacts','settings'];
+const panelTitles = {
+    dashboard: 'Dashboard Overview',
+    pages: 'Page Content Editor',
+    services: 'Services Manager',
+    reviews: 'Reviews Manager',
+    images: 'Image Library',
+    logo: 'Logo Manager',
+    portfolio: 'Portfolio Gallery',
+    leads: 'Quote Requests / Leads',
+    contacts: 'Contact Information',
+    settings: 'General Settings'
+};
+
+function switchPanel(name, el) {
+    panels.forEach(p => {
+        const panel = document.getElementById('panel-' + p);
+        if (panel) panel.classList.remove('active');
+    });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('topbarTitle').textContent = panelTitles[name] || name;
+    window.scrollTo(0, 0);
+}
+
+function switchTab(id, btn) {
+    const parent = btn.closest('.card');
+    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = document.getElementById('tab-' + id);
+    if (tab) tab.classList.add('active');
+}
+
+function toggleSection(head) {
+    head.classList.toggle('open');
+    const body = head.nextElementSibling;
+    body.classList.toggle('open');
+}
+
+// ---- IMAGE LIBRARY ----
+let imageLibrary = [
+    {id:1, name:'painting-work.jpg', cat:'services', tag:'Services', size:'1.2 MB'},
+    {id:2, name:'kitchen-remodel.jpg', cat:'portfolio', tag:'Portfolio', size:'980 KB'},
+    {id:3, name:'landscaping.jpg', cat:'portfolio', tag:'Portfolio', size:'1.5 MB'},
+    {id:4, name:'patio-concrete.jpg', cat:'portfolio', tag:'Portfolio', size:'1.1 MB'},
+    {id:5, name:'bathroom-remodel.jpg', cat:'portfolio', tag:'Portfolio', size:'870 KB'},
+    {id:6, name:'fence-install.jpg', cat:'portfolio', tag:'Portfolio', size:'1.3 MB'},
+    {id:7, name:'foundation-work.jpg', cat:'services', tag:'Services', size:'2.1 MB'},
+    {id:8, name:'electrical-panel.jpg', cat:'services', tag:'Services', size:'760 KB'},
+    {id:9, name:'hero-bg.jpg', cat:'hero', tag:'Hero', size:'3.4 MB'}
+];
+let portfolioLibrary = [
+    {id:1, name:'interior-painting.jpg', cat:'residential', title:'Interior Renovation'},
+    {id:2, name:'kitchen-remodel.jpg', cat:'residential', title:'Kitchen Remodel'},
+    {id:3, name:'landscaping.jpg', cat:'exterior', title:'Landscaping & Yard'},
+    {id:4, name:'concrete-patio.jpg', cat:'concrete', title:'Concrete Patio'},
+    {id:5, name:'bathroom-remodel.jpg', cat:'residential', title:'Bathroom Remodel'},
+    {id:6, name:'fence.jpg', cat:'exterior', title:'Fence Installation'},
+    {id:7, name:'foundation.jpg', cat:'concrete', title:'Foundation Repair'},
+    {id:8, name:'electrical.jpg', cat:'residential', title:'Electrical Work'},
+    {id:9, name:'renovation.jpg', cat:'residential', title:'Full Renovation'},
+];
+
+const iconMap = {services:'fas fa-tools', portfolio:'fas fa-folder', hero:'fas fa-image', team:'fas fa-users'};
+const tagColors = {services:'badge-blue', portfolio:'badge-gold', hero:'badge-red', team:'badge-green'};
+
+function renderImages() {
+    const grid = document.getElementById('imageGrid');
+    grid.innerHTML = imageLibrary.map(img => `
+        <div class="img-card" data-cat="${img.cat}" id="img-${img.id}">
+            <div class="thumb-placeholder">
+                <i class="${iconMap[img.cat] || 'fas fa-image'}"></i>
+                <span>${img.name}</span>
+            </div>
+            <div class="img-actions">
+                <button class="del-btn" onclick="deleteImage(${img.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                <button class="use-btn" onclick="showToast('Image URL copied!','info')" title="Use"><i class="fas fa-copy"></i></button>
+            </div>
+            <div class="img-info">
+                <div class="img-name">${img.name}</div>
+                <div class="img-meta"><span class="badge ${tagColors[img.cat]||'badge-gray'}" style="font-size:0.6rem;padding:2px 6px;">${img.tag}</span> · ${img.size}</div>
+            </div>
+        </div>`).join('');
+    document.getElementById('imgBadge').textContent = imageLibrary.length;
+    document.getElementById('imgCountLabel').textContent = imageLibrary.length + ' images';
+    document.getElementById('dashImgCount').textContent = imageLibrary.length;
+}
+
+function renderPortfolio() {
+    const grid = document.getElementById('portfolioGrid');
+    grid.innerHTML = portfolioLibrary.map(img => `
+        <div class="img-card" data-cat="${img.cat}" id="port-${img.id}">
+            <div class="thumb-placeholder">
+                <i class="fas fa-image"></i>
+                <span>${img.name}</span>
+            </div>
+            <div class="img-actions">
+                <button class="del-btn" onclick="deletePortfolioItem(${img.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                <button class="use-btn" onclick="editPortfolioItem(${img.id})" title="Edit"><i class="fas fa-edit"></i></button>
+            </div>
+            <div class="img-info">
+                <div class="img-name">${img.title}</div>
+                <div class="img-meta"><span class="badge badge-gray" style="font-size:0.6rem;padding:2px 6px;">${img.cat}</span></div>
+            </div>
+        </div>`).join('');
+}
+
+function filterImages(cat) {
+    document.querySelectorAll('.img-card').forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+}
+
+function deleteImage(id) {
+    confirmAction('Delete Image?', 'This image will be removed from the library. This cannot be undone.', () => {
+        imageLibrary = imageLibrary.filter(i => i.id !== id);
+        renderImages();
+        showToast('Image deleted.', 'success');
+    });
+}
+
+function deletePortfolioItem(id) {
+    confirmAction('Remove Portfolio Item?', 'This project photo will be removed from the gallery.', () => {
+        portfolioLibrary = portfolioLibrary.filter(i => i.id !== id);
+        renderPortfolio();
+        showToast('Portfolio item removed.', 'success');
+    });
+}
+
+function editPortfolioItem(id) {
+    const item = portfolioLibrary.find(i => i.id === id);
+    if (!item) return;
+    openModal('Edit Portfolio Item', `
+        <div class="form-group"><label>Project Title</label><input type="text" id="editTitle" value="${item.title}"></div>
+        <div class="form-group"><label>Category</label>
+            <select id="editCat">
+                <option value="residential" ${item.cat==='residential'?'selected':''}>Residential</option>
+                <option value="commercial" ${item.cat==='commercial'?'selected':''}>Commercial</option>
+                <option value="concrete" ${item.cat==='concrete'?'selected':''}>Concrete & Foundation</option>
+                <option value="exterior" ${item.cat==='exterior'?'selected':''}>Exterior</option>
+            </select>
+        </div>
+    `, [{label:'Save Changes', cls:'btn-primary', action: () => {
+        item.title = document.getElementById('editTitle').value;
+        item.cat = document.getElementById('editCat').value;
+        renderPortfolio();
+        closeModal();
+        showToast('Portfolio item updated!', 'success');
+    }}, {label:'Cancel', cls:'btn-secondary', action: closeModal}]);
+}
+
+function handleImageUpload(input) {
+    const files = Array.from(input.files);
+    files.forEach(file => {
+        const id = Date.now() + Math.random();
+        const sizeKB = Math.round(file.size / 1024);
+        const sizeStr = sizeKB > 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : sizeKB + ' KB';
+        imageLibrary.push({id, name: file.name, cat: 'portfolio', tag: 'Portfolio', size: sizeStr});
+    });
+    renderImages();
+    showToast(files.length + ' image(s) uploaded!', 'success');
+    input.value = '';
+}
+
+function handlePortfolioUpload(input) {
+    const files = Array.from(input.files);
+    files.forEach(file => {
+        const id = Date.now() + Math.random();
+        portfolioLibrary.push({id, name: file.name, cat: 'residential', title: file.name.replace(/\.[^.]+$/, '').replace(/-|_/g, ' ')});
+    });
+    renderPortfolio();
+    showToast(files.length + ' portfolio image(s) added!', 'success');
+    input.value = '';
+}
+
+// ---- LOGO ----
+function previewLogo(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('uploadedLogoImg').src = e.target.result;
+        document.getElementById('logoImgPreview').style.display = 'block';
+        showToast('Logo loaded — click Apply to set it live.', 'info');
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function applyLogo() {
+    document.getElementById('logoStatus').textContent = 'Custom logo applied ✓';
+    showToast('Logo applied successfully!', 'success');
+}
+
+function removeLogo() {
+    confirmAction('Remove Logo?', 'The custom logo will be removed and the default text logo restored.', () => {
+        document.getElementById('logoImgPreview').style.display = 'none';
+        document.getElementById('logoStatus').textContent = 'Using default NTX text logo';
+        showToast('Logo removed. Default text logo restored.', 'success');
+    });
+}
+
+// ---- LEADS ----
+function viewLead(name, service, email, phone, loc, msg, attachCount) {
+    openModal('Quote Request — ' + name, `
+        <div class="quote-detail-card">
+            <div class="qd-header"><h4>${name}</h4><span class="badge badge-gold">New</span></div>
+            <div class="qd-row"><span class="qd-label">Service</span><span>${service}</span></div>
+            <div class="qd-row"><span class="qd-label">Email</span><a href="mailto:${email}" style="color:var(--info);">${email}</a></div>
+            <div class="qd-row"><span class="qd-label">Phone</span><a href="tel:${phone}" style="color:var(--info);">${phone}</a></div>
+            <div class="qd-row"><span class="qd-label">Location</span><span>${loc}</span></div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;"><label>Project Description</label><div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:0.88rem;line-height:1.7;">${msg}</div></div>
+        ${parseInt(attachCount) > 0 ? `<div class="form-group"><label>Attachments (${attachCount} file${attachCount>1?'s':''})</label><div class="attachments-row">${Array.from({length:parseInt(attachCount)},(_,i)=>`<div class="attachment-chip"><i class="fas fa-image"></i> photo-${i+1}.jpg</div>`).join('')}</div></div>` : '<p style="font-size:0.82rem;color:var(--muted);">No attachments.</p>'}
+        <div class="form-group" style="margin-top:16px;"><label>Reply / Notes</label><textarea placeholder="Type your reply or internal note..."></textarea></div>
+        <div class="form-group"><label>Update Status</label>
+            <select><option>New</option><option>In Review</option><option>Replied</option><option>Won</option><option>Closed</option></select>
+        </div>
+    `, [{label:'Send Reply', cls:'btn-primary', action: () => { closeModal(); showToast('Reply sent to ' + name, 'success'); }}, {label:'Close', cls:'btn-secondary', action: closeModal}]);
+}
+
+// ---- MODALS ----
+function openModal(title, body, buttons) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    const footer = document.getElementById('modalFooter');
+    footer.innerHTML = '';
+    (buttons || []).forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = 'btn ' + b.cls;
+        btn.textContent = b.label;
+        btn.onclick = b.action;
+        footer.appendChild(btn);
+    });
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+// ---- ADD SERVICE MODAL ----
+function openAddServiceModal() {
+    openModal('Add New Service', `
+        <div class="form-group"><label>Service Name</label><input type="text" id="newSvcName" placeholder="e.g. Tile Installation"></div>
+        <div class="form-group"><label>Description</label><textarea id="newSvcDesc" placeholder="Brief description..."></textarea></div>
+        <div class="form-group"><label>Category</label>
+            <select id="newSvcCat">
+                <option>Commercial</option><option>Residential</option><option>Other</option>
+            </select>
+        </div>
+    `, [{label:'Add Service', cls:'btn-primary', action: () => {
+        const name = document.getElementById('newSvcName').value;
+        if (!name) { showToast('Please enter a service name.', 'error'); return; }
+        const tbody = document.getElementById('svcCommercialBody');
+        tbody.innerHTML += `<tr><td><strong>${name}</strong></td><td style="color:var(--muted);font-size:0.82rem;">${document.getElementById('newSvcDesc').value}</td><td><span class="badge badge-green">Yes</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>`;
+        closeModal();
+        showToast('Service "' + name + '" added!', 'success');
+    }}, {label:'Cancel', cls:'btn-secondary', action: closeModal}]);
+}
+
+// ---- ADD REVIEW MODAL ----
+function openAddReviewModal() {
+    openModal('Add New Review', `
+        <div class="form-row">
+            <div class="form-group"><label>Reviewer Name</label><input type="text" id="rName" placeholder="John Smith"></div>
+            <div class="form-group"><label>Title / Company</label><input type="text" id="rTitle" placeholder="Homeowner, Dallas TX"></div>
+        </div>
+        <div class="form-group"><label>Review Text</label><textarea id="rText" placeholder="Write the review..."></textarea></div>
+        <div class="form-row">
+            <div class="form-group"><label>Rating</label><select id="rRating"><option>⭐⭐⭐⭐⭐ 5 Stars</option><option>⭐⭐⭐⭐ 4 Stars</option></select></div>
+            <div class="form-group"><label>Type</label><select id="rType"><option>Residential</option><option>Commercial</option></select></div>
+        </div>
+    `, [{label:'Add Review', cls:'btn-primary', action: () => {
+        const name = document.getElementById('rName').value;
+        if (!name) { showToast('Please enter reviewer name.', 'error'); return; }
+        const tbody = document.getElementById('reviewsBody');
+        tbody.innerHTML += `<tr><td><strong>${name}</strong><br><small style="color:var(--muted);">${document.getElementById('rTitle').value}</small></td><td>⭐⭐⭐⭐⭐</td><td style="color:var(--muted);font-size:0.8rem;max-width:200px;">${document.getElementById('rText').value.substring(0,60)}...</td><td><span class="badge badge-gold">${document.getElementById('rType').value}</span></td><td><span class="badge badge-green">Shown</span></td><td><button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button></td></tr>`;
+        closeModal();
+        showToast('Review by ' + name + ' added!', 'success');
+    }}, {label:'Cancel', cls:'btn-secondary', action: closeModal}]);
+}
+
+// ---- CONFIRM ----
+let confirmCallback = null;
+function confirmAction(title, msg, cb) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMsg').textContent = msg;
+    confirmCallback = cb;
+    document.getElementById('confirmDialog').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmDialog').classList.remove('open'); confirmCallback = null; }
+document.getElementById('confirmOk').onclick = () => { closeConfirm(); if (confirmCallback) confirmCallback(); };
+
+// ---- DELETE ROW ----
+function deleteRow(btn) {
+    const row = btn.closest('tr');
+    const name = row.querySelector('strong')?.textContent || 'item';
+    confirmAction('Delete "' + name + '"?', 'This will be permanently removed.', () => {
+        row.remove();
+        showToast('"' + name + '" deleted.', 'success');
+    });
+}
+
+// ---- TOAST ----
+function showToast(msg, type = 'success') {
+    const icons = {success:'fa-check-circle', error:'fa-circle-exclamation', info:'fa-info-circle'};
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i> ${msg}`;
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+}
+
+// ---- PUBLISH ----
+function handlePublish() {
+    const btn = event.target;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+    btn.disabled = true;
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-upload"></i> Publish Changes';
+        btn.disabled = false;
+        showToast('Changes published to live site!', 'success');
+    }, 1800);
+}
+
+// ---- SERVICE EDIT ----
+function editService(btn) {
+    const row = btn.closest('tr');
+    const name = row.querySelector('strong').textContent;
+    const desc = row.cells[1].textContent;
+    openModal('Edit Service', `
+        <div class="form-group"><label>Service Name</label><input type="text" id="editSvcName" value="${name}"></div>
+        <div class="form-group"><label>Description</label><textarea id="editSvcDesc">${desc}</textarea></div>
+    `, [{label:'Save', cls:'btn-primary', action: () => {
+        row.querySelector('strong').textContent = document.getElementById('editSvcName').value;
+        row.cells[1].textContent = document.getElementById('editSvcDesc').value;
+        closeModal();
+        showToast('Service updated!', 'success');
+    }}, {label:'Cancel', cls:'btn-secondary', action: closeModal}]);
+}
+
+// ---- DRAG & DROP UPLOAD ----
+const uploadZone = document.getElementById('uploadZone');
+if (uploadZone) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        const fakeInput = {files: e.dataTransfer.files};
+        handleImageUpload(fakeInput);
+    });
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// Responsive sidebar toggle visibility
+if (window.innerWidth <= 900) document.getElementById('menuToggle').style.display = 'flex';
+
+// ---- INIT ----
+renderImages();
+renderPortfolio();
+
+// ================================================================
+//  REAL API INTEGRATION  — connects admin panel to server.js
+// ================================================================
+
+// ---- API helper ----
+async function api(method, endpoint, data) {
+    const opts = {
+        method,
+        credentials: 'include',
+        headers: {},
+    };
+    if (data && !(data instanceof FormData)) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(data);
+    } else if (data) {
+        opts.body = data;
+    }
+    const res = await fetch(endpoint, opts);
+    return res.json();
+}
+
+// ---- Login overlay ----
+(function injectLoginUI() {
+    const overlay = document.createElement('div');
+    overlay.id = 'loginOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:#0d1821;z-index:9999;display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `
+        <div style="background:white;border-radius:14px;padding:40px 36px;width:100%;max-width:380px;text-align:center;">
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:2rem;font-weight:900;margin-bottom:4px;">
+                <span style="color:#C0392B;">N</span><span>TX</span>
+            </div>
+            <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.15em;color:#6b7280;margin-bottom:28px;">Admin Panel</div>
+            <div id="loginError" style="display:none;background:#fef2f2;color:#b91c1c;padding:10px;border-radius:6px;font-size:.85rem;margin-bottom:14px;"></div>
+            <input id="loginUser" type="text" placeholder="Username" autocomplete="username"
+                style="width:100%;padding:10px 14px;border:1.5px solid #e8e5e0;border-radius:6px;font-family:Barlow,sans-serif;font-size:.9rem;margin-bottom:10px;outline:none;">
+            <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password"
+                style="width:100%;padding:10px 14px;border:1.5px solid #e8e5e0;border-radius:6px;font-family:Barlow,sans-serif;font-size:.9rem;margin-bottom:18px;outline:none;">
+            <button id="loginBtn" onclick="doLogin()"
+                style="width:100%;padding:12px;background:#C0392B;color:white;border:none;border-radius:6px;font-family:Barlow,sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;">
+                Sign In
+            </button>
+        </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+})();
+
+async function doLogin() {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value;
+    const btn = document.getElementById('loginBtn');
+    btn.textContent = 'Signing in...'; btn.disabled = true;
+    try {
+        const fd = new FormData();
+        fd.append('username', u); fd.append('password', p);
+        const data = await api('POST', '/api/login', fd);
+        if (data.success) {
+            document.getElementById('loginOverlay').remove();
+            loadDashboard();
+        } else {
+            document.getElementById('loginError').textContent = data.error || 'Invalid credentials.';
+            document.getElementById('loginError').style.display = 'block';
+        }
+    } catch(e) {
+        document.getElementById('loginError').textContent = 'Cannot connect to server.';
+        document.getElementById('loginError').style.display = 'block';
+    }
+    btn.textContent = 'Sign In'; btn.disabled = false;
+}
+
+// ---- Load real dashboard stats ----
+async function loadDashboard() {
+    try {
+        const r = await api('GET', '/api/admin/stats');
+        if (!r.success) return;
+        const d = r.data;
+        // Update stat cards if they exist on the page
+        const cards = document.querySelectorAll('.stat-card .value');
+        if (cards[0]) cards[0].textContent = d.total_leads;
+        if (cards[1]) cards[1].textContent = d.new_leads;
+        if (cards[2]) cards[2].textContent = d.won;
+        // Update nav badge for leads
+        const badge = document.querySelector('.nav-badge');
+        if (badge) badge.textContent = d.new_leads;
+    } catch(e) {}
+    loadLeadsTable();
+}
+
+// ---- Load real leads into the leads table ----
+async function loadLeadsTable() {
+    try {
+        const r = await api('GET', '/api/admin/leads');
+        if (!r.success) return;
+        const tbody = document.getElementById('leadsBody');
+        if (!tbody) return;
+        if (r.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:32px;">No leads yet. Submissions from the contact form will appear here.</td></tr>';
+            return;
+        }
+        const statusColors = { new:'badge-red', in_review:'badge-gold', replied:'badge-blue', won:'badge-green', closed:'badge-gray' };
+        tbody.innerHTML = r.data.map(lead => `
+            <tr>
+                <td><strong>${esc(lead.name)}</strong><br><small style="color:#6b7280;">${esc(lead.email)}</small></td>
+                <td>${esc(lead.phone)}</td>
+                <td>${esc(lead.project_type || '—')}</td>
+                <td>${esc(lead.address || '—')}</td>
+                <td><span class="badge ${statusColors[lead.status]||'badge-gray'}">${lead.status.replace('_',' ')}</span></td>
+                <td style="font-size:.78rem;color:#6b7280;">${new Date(lead.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-secondary btn-sm" onclick="viewLeadFromAPI(${lead.id})"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteLeadAPI(${lead.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+    } catch(e) { console.error('loadLeadsTable:', e); }
+}
+
+function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function viewLeadFromAPI(id) {
+    const r = await api('GET', `/api/admin/leads/${id}`);
+    if (!r.success) return;
+    const lead = r.data;
+    const attachHtml = lead.attachments && lead.attachments.length
+        ? lead.attachments.map(a => `<a href="${a.path}" target="_blank" class="attachment-chip"><i class="fas fa-paperclip"></i> ${esc(a.filename)}</a>`).join('')
+        : '<span style="color:#6b7280;font-size:.82rem;">No attachments</span>';
+    openModal('Quote Request — ' + lead.name, `
+        <div class="quote-detail-card">
+            <div class="qd-row"><span class="qd-label">Name</span><strong>${esc(lead.name)}</strong></div>
+            <div class="qd-row"><span class="qd-label">Email</span><a href="mailto:${esc(lead.email)}" style="color:#2563eb;">${esc(lead.email)}</a></div>
+            <div class="qd-row"><span class="qd-label">Phone</span><a href="tel:${esc(lead.phone)}" style="color:#2563eb;">${esc(lead.phone)}</a></div>
+            <div class="qd-row"><span class="qd-label">Service</span>${esc(lead.project_type||'—')}</div>
+            <div class="qd-row"><span class="qd-label">Location</span>${esc(lead.address||'—')}</div>
+            <div class="qd-row"><span class="qd-label">Contact via</span>${esc(lead.preferred_contact)}</div>
+        </div>
+        <div class="form-group"><label>Message</label><div style="background:#f8f7f4;border:1px solid #e8e5e0;border-radius:6px;padding:12px;font-size:.88rem;line-height:1.7;">${esc(lead.message)}</div></div>
+        <div class="form-group"><label>Attachments</label><div class="attachments-row">${attachHtml}</div></div>
+        <div class="form-group"><label>Update Status</label>
+            <select id="leadStatus">
+                ${['new','in_review','replied','won','closed'].map(s => `<option value="${s}"${lead.status===s?' selected':''}>${s.replace('_',' ')}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group"><label>Admin Notes</label><textarea id="leadNotes" placeholder="Internal notes...">${esc(lead.admin_notes||'')}</textarea></div>
+    `, [
+        { label:'Save', cls:'btn-primary', action: async () => {
+            await api('PATCH', `/api/admin/leads/${id}`, { status: document.getElementById('leadStatus').value, admin_notes: document.getElementById('leadNotes').value });
+            closeModal(); loadLeadsTable(); showToast('Lead updated!', 'success');
+        }},
+        { label:'Close', cls:'btn-secondary', action: closeModal }
+    ]);
+}
+
+async function deleteLeadAPI(id) {
+    confirmAction('Delete Lead?', 'This will permanently remove this lead.', async () => {
+        const r = await api('DELETE', `/api/admin/leads/${id}`);
+        if (r.success) { loadLeadsTable(); showToast('Lead deleted.', 'success'); }
+    });
+}
+
+// ---- Wire publish button to save settings ----
+async function handlePublish() {
+    const btn = event.target.closest('button') || event.target;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+    btn.disabled = true;
+    // Collect any settings fields visible on the page
+    const fields = {};
+    ['heroHeadline','phonePrimary','phoneSecondary','email','serviceArea'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) fields[id] = el.value;
+    });
+    try {
+        if (Object.keys(fields).length) await api('PATCH', '/api/admin/settings', fields);
+        showToast('Changes published to live site!', 'success');
+    } catch(e) { showToast('Could not save. Check server connection.', 'error'); }
+    btn.innerHTML = '<i class="fas fa-upload"></i> Publish Changes';
+    btn.disabled = false;
+}
+</script>
+</body>
+</html>
