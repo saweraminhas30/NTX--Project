@@ -10,7 +10,7 @@ const url   = require('url');
 const https = require('https');
 const crypto= require('crypto');
 
-const PORT             = process.env.PORT            || 3000;
+const PORT             = process.env.PORT            || 8080;
 const DB_FILE          = path.join(__dirname, 'database.json');
 const CLOUDINARY_CLOUD = process.env.CLOUDINARY_CLOUD  || 'dxymalfcn';
 const CLOUDINARY_KEY   = process.env.CLOUDINARY_KEY    || '627537748819494';
