@@ -1014,9 +1014,20 @@ tbody tr:hover td { background: #faf9f7; }
                     <button class="btn btn-primary btn-sm" onclick="document.getElementById('portfolioUpload').click()"><i class="fas fa-plus"></i> Add Portfolio Images</button>
                     <input type="file" id="portfolioUpload" multiple accept="image/*" style="display:none" onchange="handlePortfolioUpload(this)">
                 </div>
+
+                <!-- Upload Progress -->
+                <div id="uploadProgress" style="display:none;background:white;border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i class="fas fa-cloud-upload-alt" style="color:var(--red);"></i>
+                        <span style="font-size:0.88rem;font-weight:600;" id="uploadStatusText">Uploading to Cloudinary...</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="uploadProgressFill" style="width:0%"></div></div>
+                    <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;" id="uploadCountText"></div>
+                </div>
+
                 <div class="card">
                     <div class="card-title"><i class="fas fa-folder-open"></i> Portfolio Gallery</div>
-                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">Each image can be assigned a category and title that appear on the website gallery.</p>
+                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">Each image can be assigned a category and title. Images are saved permanently to Cloudinary.</p>
                     <div class="img-grid" id="portfolioGrid">
                         <!-- Portfolio items seeded by JS -->
                     </div>
@@ -1291,22 +1302,27 @@ function renderImages() {
 
 function renderPortfolio() {
     const grid = document.getElementById('portfolioGrid');
+    if (!portfolioLibrary.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);"><i class="fas fa-images" style="font-size:2rem;margin-bottom:12px;display:block;"></i><p>No portfolio images yet. Click "Add Portfolio Images" to upload.</p></div>';
+        return;
+    }
     grid.innerHTML = portfolioLibrary.map(img => `
-        <div class="img-card" data-cat="${img.cat}" id="port-${img.id}">
-            <div class="thumb-placeholder">
-                <i class="fas fa-image"></i>
-                <span>${img.name}</span>
-            </div>
+        <div class="img-card">
+            ${img.cloudUrl
+                ? `<img src="${img.cloudUrl}" class="thumb" alt="${img.title||img.name}">`
+                : `<div class="thumb-placeholder"><i class="fas fa-image"></i><span>${img.cat||'Portfolio'}</span></div>`
+            }
             <div class="img-actions">
                 <button class="del-btn" onclick="deletePortfolioItem(${img.id})" title="Delete"><i class="fas fa-trash"></i></button>
                 <button class="use-btn" onclick="editPortfolioItem(${img.id})" title="Edit"><i class="fas fa-edit"></i></button>
             </div>
             <div class="img-info">
-                <div class="img-name">${img.title}</div>
-                <div class="img-meta"><span class="badge badge-gray" style="font-size:0.6rem;padding:2px 6px;">${img.cat}</span></div>
+                <div class="img-name">${img.title||img.name}</div>
+                <div class="img-meta">${img.cat||'Residential'}${img.cloudUrl ? ' · <span style="color:var(--success);">✓ Cloudinary</span>' : ''}</div>
             </div>
         </div>`).join('');
 }
+
 
 function filterImages(cat) {
     document.querySelectorAll('.img-card').forEach(card => {
@@ -1365,14 +1381,52 @@ function handleImageUpload(input) {
     input.value = '';
 }
 
-function handlePortfolioUpload(input) {
+async function handlePortfolioUpload(input) {
     const files = Array.from(input.files);
-    files.forEach(file => {
-        const id = Date.now() + Math.random();
-        portfolioLibrary.push({id, name: file.name, cat: 'residential', title: file.name.replace(/\.[^.]+$/, '').replace(/-|_/g, ' ')});
-    });
+    if (!files.length) return;
+
+    // Show progress bar
+    const progressBox  = document.getElementById('uploadProgress');
+    const progressFill = document.getElementById('uploadProgressFill');
+    const statusText   = document.getElementById('uploadStatusText');
+    const countText    = document.getElementById('uploadCountText');
+    progressBox.style.display = 'block';
+    progressFill.style.width  = '0%';
+
+    let uploaded = 0;
+    for (const file of files) {
+        statusText.textContent = `Uploading ${file.name}...`;
+        countText.textContent  = `${uploaded} of ${files.length} done`;
+
+        try {
+            const fd = new FormData();
+            fd.append('image', file);
+            fd.append('folder', 'ntx/portfolio');
+
+            const res  = await fetch('/api/admin/upload', { method: 'POST', body: fd, credentials: 'include' });
+            const data = await res.json();
+
+            if (data.success) {
+                const id    = Date.now() + Math.random();
+                const title = file.name.replace(/\.[^.]+$/, '').replace(/-|_/g, ' ');
+                portfolioLibrary.push({ id, name: file.name, cat: 'residential', title, cloudUrl: data.url });
+                uploaded++;
+                progressFill.style.width = Math.round((uploaded / files.length) * 100) + '%';
+            } else {
+                showToast('Upload failed: ' + (data.error || file.name), 'error');
+            }
+        } catch(e) {
+            showToast('Network error uploading ' + file.name, 'error');
+        }
+    }
+
+    statusText.textContent = `Done! ${uploaded} image(s) uploaded to Cloudinary ✓`;
+    countText.textContent  = 'Images are permanently saved online.';
+    progressFill.style.width = '100%';
+    setTimeout(() => { progressBox.style.display = 'none'; }, 3000);
+
     renderPortfolio();
-    showToast(files.length + ' portfolio image(s) added!', 'success');
+    showToast(uploaded + ' portfolio image(s) uploaded to Cloudinary!', 'success');
     input.value = '';
 }
 
@@ -1561,184 +1615,6 @@ if (window.innerWidth <= 900) document.getElementById('menuToggle').style.displa
 // ---- INIT ----
 renderImages();
 renderPortfolio();
-
-// ================================================================
-//  REAL API INTEGRATION  — connects admin panel to server.js
-// ================================================================
-
-// ---- API helper ----
-async function api(method, endpoint, data) {
-    const opts = {
-        method,
-        credentials: 'include',
-        headers: {},
-    };
-    if (data && !(data instanceof FormData)) {
-        opts.headers['Content-Type'] = 'application/json';
-        opts.body = JSON.stringify(data);
-    } else if (data) {
-        opts.body = data;
-    }
-    const res = await fetch(endpoint, opts);
-    return res.json();
-}
-
-// ---- Login overlay ----
-(function injectLoginUI() {
-    const overlay = document.createElement('div');
-    overlay.id = 'loginOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:#0d1821;z-index:9999;display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = `
-        <div style="background:white;border-radius:14px;padding:40px 36px;width:100%;max-width:380px;text-align:center;">
-            <div style="font-family:Barlow Condensed,sans-serif;font-size:2rem;font-weight:900;margin-bottom:4px;">
-                <span style="color:#C0392B;">N</span><span>TX</span>
-            </div>
-            <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.15em;color:#6b7280;margin-bottom:28px;">Admin Panel</div>
-            <div id="loginError" style="display:none;background:#fef2f2;color:#b91c1c;padding:10px;border-radius:6px;font-size:.85rem;margin-bottom:14px;"></div>
-            <input id="loginUser" type="text" placeholder="Username" autocomplete="username"
-                style="width:100%;padding:10px 14px;border:1.5px solid #e8e5e0;border-radius:6px;font-family:Barlow,sans-serif;font-size:.9rem;margin-bottom:10px;outline:none;">
-            <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password"
-                style="width:100%;padding:10px 14px;border:1.5px solid #e8e5e0;border-radius:6px;font-family:Barlow,sans-serif;font-size:.9rem;margin-bottom:18px;outline:none;">
-            <button id="loginBtn" onclick="doLogin()"
-                style="width:100%;padding:12px;background:#C0392B;color:white;border:none;border-radius:6px;font-family:Barlow,sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;">
-                Sign In
-            </button>
-        </div>`;
-    document.body.appendChild(overlay);
-    document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-})();
-
-async function doLogin() {
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
-    const btn = document.getElementById('loginBtn');
-    btn.textContent = 'Signing in...'; btn.disabled = true;
-    try {
-        const fd = new FormData();
-        fd.append('username', u); fd.append('password', p);
-        const data = await api('POST', '/api/login', fd);
-        if (data.success) {
-            document.getElementById('loginOverlay').remove();
-            loadDashboard();
-        } else {
-            document.getElementById('loginError').textContent = data.error || 'Invalid credentials.';
-            document.getElementById('loginError').style.display = 'block';
-        }
-    } catch(e) {
-        document.getElementById('loginError').textContent = 'Cannot connect to server.';
-        document.getElementById('loginError').style.display = 'block';
-    }
-    btn.textContent = 'Sign In'; btn.disabled = false;
-}
-
-// ---- Load real dashboard stats ----
-async function loadDashboard() {
-    try {
-        const r = await api('GET', '/api/admin/stats');
-        if (!r.success) return;
-        const d = r.data;
-        // Update stat cards if they exist on the page
-        const cards = document.querySelectorAll('.stat-card .value');
-        if (cards[0]) cards[0].textContent = d.total_leads;
-        if (cards[1]) cards[1].textContent = d.new_leads;
-        if (cards[2]) cards[2].textContent = d.won;
-        // Update nav badge for leads
-        const badge = document.querySelector('.nav-badge');
-        if (badge) badge.textContent = d.new_leads;
-    } catch(e) {}
-    loadLeadsTable();
-}
-
-// ---- Load real leads into the leads table ----
-async function loadLeadsTable() {
-    try {
-        const r = await api('GET', '/api/admin/leads');
-        if (!r.success) return;
-        const tbody = document.getElementById('leadsBody');
-        if (!tbody) return;
-        if (r.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:32px;">No leads yet. Submissions from the contact form will appear here.</td></tr>';
-            return;
-        }
-        const statusColors = { new:'badge-red', in_review:'badge-gold', replied:'badge-blue', won:'badge-green', closed:'badge-gray' };
-        tbody.innerHTML = r.data.map(lead => `
-            <tr>
-                <td><strong>${esc(lead.name)}</strong><br><small style="color:#6b7280;">${esc(lead.email)}</small></td>
-                <td>${esc(lead.phone)}</td>
-                <td>${esc(lead.project_type || '—')}</td>
-                <td>${esc(lead.address || '—')}</td>
-                <td><span class="badge ${statusColors[lead.status]||'badge-gray'}">${lead.status.replace('_',' ')}</span></td>
-                <td style="font-size:.78rem;color:#6b7280;">${new Date(lead.created_at).toLocaleDateString()}</td>
-                <td>
-                    <button class="btn btn-secondary btn-sm" onclick="viewLeadFromAPI(${lead.id})"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteLeadAPI(${lead.id})"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>`).join('');
-    } catch(e) { console.error('loadLeadsTable:', e); }
-}
-
-function esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function viewLeadFromAPI(id) {
-    const r = await api('GET', `/api/admin/leads/${id}`);
-    if (!r.success) return;
-    const lead = r.data;
-    const attachHtml = lead.attachments && lead.attachments.length
-        ? lead.attachments.map(a => `<a href="${a.path}" target="_blank" class="attachment-chip"><i class="fas fa-paperclip"></i> ${esc(a.filename)}</a>`).join('')
-        : '<span style="color:#6b7280;font-size:.82rem;">No attachments</span>';
-    openModal('Quote Request — ' + lead.name, `
-        <div class="quote-detail-card">
-            <div class="qd-row"><span class="qd-label">Name</span><strong>${esc(lead.name)}</strong></div>
-            <div class="qd-row"><span class="qd-label">Email</span><a href="mailto:${esc(lead.email)}" style="color:#2563eb;">${esc(lead.email)}</a></div>
-            <div class="qd-row"><span class="qd-label">Phone</span><a href="tel:${esc(lead.phone)}" style="color:#2563eb;">${esc(lead.phone)}</a></div>
-            <div class="qd-row"><span class="qd-label">Service</span>${esc(lead.project_type||'—')}</div>
-            <div class="qd-row"><span class="qd-label">Location</span>${esc(lead.address||'—')}</div>
-            <div class="qd-row"><span class="qd-label">Contact via</span>${esc(lead.preferred_contact)}</div>
-        </div>
-        <div class="form-group"><label>Message</label><div style="background:#f8f7f4;border:1px solid #e8e5e0;border-radius:6px;padding:12px;font-size:.88rem;line-height:1.7;">${esc(lead.message)}</div></div>
-        <div class="form-group"><label>Attachments</label><div class="attachments-row">${attachHtml}</div></div>
-        <div class="form-group"><label>Update Status</label>
-            <select id="leadStatus">
-                ${['new','in_review','replied','won','closed'].map(s => `<option value="${s}"${lead.status===s?' selected':''}>${s.replace('_',' ')}</option>`).join('')}
-            </select>
-        </div>
-        <div class="form-group"><label>Admin Notes</label><textarea id="leadNotes" placeholder="Internal notes...">${esc(lead.admin_notes||'')}</textarea></div>
-    `, [
-        { label:'Save', cls:'btn-primary', action: async () => {
-            await api('PATCH', `/api/admin/leads/${id}`, { status: document.getElementById('leadStatus').value, admin_notes: document.getElementById('leadNotes').value });
-            closeModal(); loadLeadsTable(); showToast('Lead updated!', 'success');
-        }},
-        { label:'Close', cls:'btn-secondary', action: closeModal }
-    ]);
-}
-
-async function deleteLeadAPI(id) {
-    confirmAction('Delete Lead?', 'This will permanently remove this lead.', async () => {
-        const r = await api('DELETE', `/api/admin/leads/${id}`);
-        if (r.success) { loadLeadsTable(); showToast('Lead deleted.', 'success'); }
-    });
-}
-
-// ---- Wire publish button to save settings ----
-async function handlePublish() {
-    const btn = event.target.closest('button') || event.target;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
-    btn.disabled = true;
-    // Collect any settings fields visible on the page
-    const fields = {};
-    ['heroHeadline','phonePrimary','phoneSecondary','email','serviceArea'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) fields[id] = el.value;
-    });
-    try {
-        if (Object.keys(fields).length) await api('PATCH', '/api/admin/settings', fields);
-        showToast('Changes published to live site!', 'success');
-    } catch(e) { showToast('Could not save. Check server connection.', 'error'); }
-    btn.innerHTML = '<i class="fas fa-upload"></i> Publish Changes';
-    btn.disabled = false;
-}
 </script>
 </body>
 </html>
