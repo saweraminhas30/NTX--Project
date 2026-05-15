@@ -1,0 +1,273 @@
+{
+  "leads": [],
+  "services": [
+    {
+      "id": 1,
+      "name": "Home Renovation / Remodeling",
+      "category": "residential",
+      "description": "Full-scale home remodels tailored to your vision.",
+      "icon": "fa-home",
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 2,
+      "name": "Kitchen Remodel",
+      "category": "residential",
+      "description": "Modern kitchen upgrades and full remodels.",
+      "icon": "fa-utensils",
+      "active": true,
+      "order": 2
+    },
+    {
+      "id": 3,
+      "name": "Bathroom Remodel",
+      "category": "residential",
+      "description": "Luxury bathroom renovations.",
+      "icon": "fa-bath",
+      "active": true,
+      "order": 3
+    },
+    {
+      "id": 4,
+      "name": "Foundation Repair",
+      "category": "residential",
+      "description": "Expert foundation diagnostics and repair.",
+      "icon": "fa-layer-group",
+      "active": true,
+      "order": 4
+    },
+    {
+      "id": 5,
+      "name": "Commercial Build-Out",
+      "category": "commercial",
+      "description": "Tenant finish-outs and commercial interiors.",
+      "icon": "fa-building",
+      "active": true,
+      "order": 5
+    },
+    {
+      "id": 6,
+      "name": "Roofing",
+      "category": "residential",
+      "description": "Roofing installation, repair, and replacement.",
+      "icon": "fa-house-damage",
+      "active": true,
+      "order": 6
+    },
+    {
+      "id": 7,
+      "name": "HVAC Services",
+      "category": "residential",
+      "description": "Heating, ventilation, and air conditioning.",
+      "icon": "fa-wind",
+      "active": true,
+      "order": 7
+    },
+    {
+      "id": 8,
+      "name": "Solar Power",
+      "category": "residential",
+      "description": "Solar panel installation for homes and businesses.",
+      "icon": "fa-solar-panel",
+      "active": true,
+      "order": 8
+    },
+    {
+      "id": 9,
+      "name": "Maintenance Plans",
+      "category": "commercial",
+      "description": "Quarterly and annual property maintenance contracts.",
+      "icon": "fa-tools",
+      "active": true,
+      "order": 9
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "title": "Interior Renovation",
+      "category": "residential",
+      "location": "Plano, TX",
+      "year": 2024,
+      "featured": true,
+      "active": true,
+      "description": "Complete interior renovation.",
+      "order": 1
+    },
+    {
+      "id": 2,
+      "title": "Kitchen Remodel",
+      "category": "residential",
+      "location": "Dallas, TX",
+      "year": 2024,
+      "featured": false,
+      "active": true,
+      "description": "Modern kitchen transformation.",
+      "order": 2
+    },
+    {
+      "id": 3,
+      "title": "Landscaping & Yard",
+      "category": "exterior",
+      "location": "Frisco, TX",
+      "year": 2023,
+      "featured": false,
+      "active": true,
+      "description": "Full landscaping project.",
+      "order": 3
+    },
+    {
+      "id": 4,
+      "title": "Concrete Patio",
+      "category": "concrete",
+      "location": "Irving, TX",
+      "year": 2024,
+      "featured": true,
+      "active": true,
+      "description": "Stamped concrete patio.",
+      "order": 4
+    },
+    {
+      "id": 5,
+      "title": "Bathroom Remodel",
+      "category": "residential",
+      "location": "Fort Worth, TX",
+      "year": 2024,
+      "featured": false,
+      "active": true,
+      "description": "Luxury bathroom renovation.",
+      "order": 5
+    },
+    {
+      "id": 6,
+      "title": "Fence Installation",
+      "category": "exterior",
+      "location": "Arlington, TX",
+      "year": 2023,
+      "featured": false,
+      "active": true,
+      "description": "Cedar privacy fence.",
+      "order": 6
+    },
+    {
+      "id": 7,
+      "title": "Foundation Repair",
+      "category": "concrete",
+      "location": "Dallas, TX",
+      "year": 2024,
+      "featured": true,
+      "active": true,
+      "description": "Pier and beam foundation fix.",
+      "order": 7
+    },
+    {
+      "id": 8,
+      "title": "Commercial Build-Out",
+      "category": "commercial",
+      "location": "Plano, TX",
+      "year": 2024,
+      "featured": true,
+      "active": true,
+      "description": "Office tenant finish-out.",
+      "order": 8
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "name": "Sarah Thompson",
+      "title": "Homeowner, Frisco TX",
+      "text": "NTX completely transformed our home. The team was professional and kept us informed throughout. Highly recommend!",
+      "rating": 5,
+      "type": "residential",
+      "verified": true,
+      "shown": true,
+      "order": 1
+    },
+    {
+      "id": 2,
+      "name": "Michael Ross",
+      "title": "Homeowner, Plano TX",
+      "text": "They handled our home renovation with such care. The team was communicative and kept everything clean. Delivered on time!",
+      "rating": 5,
+      "type": "residential",
+      "verified": true,
+      "shown": true,
+      "order": 2
+    },
+    {
+      "id": 3,
+      "name": "David Hernandez",
+      "title": "Property Manager, Dallas TX",
+      "text": "Ahmed and his team are true professionals. My go-to contractor for all DFW properties. Foundation work was done perfectly.",
+      "rating": 5,
+      "type": "commercial",
+      "verified": true,
+      "shown": true,
+      "order": 3
+    },
+    {
+      "id": 4,
+      "name": "Jennifer Martinez",
+      "title": "Business Owner, Fort Worth TX",
+      "text": "Our tenant finish-out was completed on budget and ahead of schedule. Very responsive team. Would absolutely use NTX again.",
+      "rating": 5,
+      "type": "commercial",
+      "verified": true,
+      "shown": true,
+      "order": 4
+    },
+    {
+      "id": 5,
+      "name": "Robert Kim",
+      "title": "Homeowner, Frisco TX",
+      "text": "Kitchen and bathroom remodel came out exactly as we envisioned. Great craftsmanship, fair pricing, and no surprises.",
+      "rating": 5,
+      "type": "residential",
+      "verified": true,
+      "shown": true,
+      "order": 5
+    },
+    {
+      "id": 6,
+      "name": "Lisa Thompson",
+      "title": "HOA Manager, Irving TX",
+      "text": "NTX handles our community's quarterly maintenance and they're fantastic. Always on time, thorough, and professional.",
+      "rating": 5,
+      "type": "commercial",
+      "verified": true,
+      "shown": true,
+      "order": 6
+    }
+  ],
+  "settings": {
+    "companyName": "NTX Construction Group",
+    "tagline": "Where Vision Comes To Life",
+    "phonePrimary": "(214) 892-7751",
+    "phoneSecondary": "(214) 606-3270",
+    "email": "info@ntxcgroup.com",
+    "website": "https://ntxcgroup.com",
+    "serviceArea": "Dallas · Fort Worth · Plano · Frisco · Irving · Arlington",
+    "heroHeadline": "Where Vision Comes To Life",
+    "heroSubtext": "Licensed & insured general contractor serving Dallas–Fort Worth.",
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "google": "",
+    "statProjects": "500+",
+    "statYears": "10+",
+    "statClients": "300+",
+    "statRating": "5.0"
+  },
+  "admin": {
+    "username": "admin",
+    "password": "ntx2024"
+  },
+  "_nextId": {
+    "leads": 1,
+    "services": 10,
+    "projects": 9,
+    "reviews": 7
+  }
+}
