@@ -1,8 +1,16 @@
 {
-  "name": "ntx-project",
+  "name": "ntx-construction-group",
   "version": "1.0.0",
+  "description": "NTX Construction Group website and admin panel",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
-  }
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["construction", "ntx", "website"],
+  "author": "NTX Construction Group",
+  "license": "UNLICENSED"
 }
